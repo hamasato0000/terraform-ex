@@ -13,6 +13,10 @@ env:
     AWS_ACCOUNT_ID: "637423398840"
     AWS_ASSUME_ROLE_NAME: "terraform-ex-dev-terraform-ci-role"
 
+permissions:
+  id-token: write # OIDCトークンの要求に必要
+  contents: read # actions/checkoutに必要
+
 jobs:
     terraform-ci:
         name: Terraform CI
