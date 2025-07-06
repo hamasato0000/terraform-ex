@@ -68,5 +68,5 @@ jobs:
             working-directory: ./envs/${{ env.ENV }}
 
           - name: Terraform Plan
-            run: terraform plan
+            run: terraform plan -var="is_aws_profile_used=false"
             working-directory: ./envs/${{ env.ENV }}
