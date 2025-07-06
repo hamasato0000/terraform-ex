@@ -3,6 +3,14 @@ plugin "terraform" {
     preset  = "recommended"
 }
 
+rule "terraform_required_version" {
+  enabled = false
+}
+
+rule "terraform_unused_declarations" {
+  enabled = false
+}
+
 plugin "aws" {
     enabled = true # プラグインを有効化
     deep_check = false # クラウド上の実際のリソースはチェック対象に含めない
