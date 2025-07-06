@@ -9,6 +9,9 @@ env:
     ENV: "dev"
     TF_VERSION: "1.12.2"
     TF_LINT_VERSION: "v0.58.0"
+    AWS_REGION: "ap-northeast-1"
+    AWS_ACCOUNT_ID: "637423398840"
+    AWS_ASSUME_ROLE_NAME: "terraform-ex-dev-terraform-ci-role"
 
 jobs:
     terraform-ci:
@@ -16,8 +19,17 @@ jobs:
         runs-on: ubuntu-latest
 
         steps:
+          - name: Show event
+            run: cat $GITHUB_EVENT_PATH
+
           - name: Checkout code
             uses: actions/checkout@v4
+
+          - name: Configure AWS Credentials
+            uses: aws-actions/configure-aws-credentials@v4.1.2
+            with:
+              role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ASSUME_ROLE_NAME }}
+              aws-region: ${{ env.AWS_REGION }}
 
           - name: Set up Terraform
             uses: hashicorp/setup-terraform@v2
