@@ -1,0 +1,72 @@
+name: Terraform CI
+
+on:
+    pull_request:
+        branches:
+            - develop
+
+env:
+    ENV: "dev"
+    TF_VERSION: "1.12.2"
+    TF_LINT_VERSION: "v0.58.0"
+    AWS_REGION: "ap-northeast-1"
+    AWS_ACCOUNT_ID: "637423398840"
+    AWS_ASSUME_ROLE_NAME: "terraform-ex-dev-terraform-ci-role"
+
+permissions:
+  id-token: write # OIDCトークンの要求に必要
+  contents: read # actions/checkoutに必要
+
+jobs:
+    terraform-ci:
+        name: Terraform CI
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: Show event
+            run: cat $GITHUB_EVENT_PATH
+
+          - name: Checkout code
+            uses: actions/checkout@v4
+
+          - name: Configure AWS Credentials
+            uses: aws-actions/configure-aws-credentials@v4
+            with:
+              role-to-assume: arn:aws:iam::${{ env.AWS_ACCOUNT_ID }}:role/${{ env.AWS_ASSUME_ROLE_NAME }}
+              aws-region: ${{ env.AWS_REGION }}
+
+          - name: Set up Terraform
+            uses: hashicorp/setup-terraform@v2
+            with:
+              terraform_version: ${{ env.TF_VERSION }}
+
+          - name: Show Terraform version
+            run: terraform version
+
+          - name: Set up TFLint
+            uses: terraform-linters/setup-tflint@v4
+            with:
+              tflint_version: ${{ env.TF_LINT_VERSION }}
+
+          - name: Show TFLint version
+            run: tflint --version
+
+          - name: Terraform Format Check
+            run: terraform fmt -check -recursive
+            working-directory: .
+
+          - name: TFLint Init
+            run: tflint --init
+            working-directory: .
+
+          - name: TFLint Run
+            run: tflint --recursive
+            working-directory: .
+
+          - name: Terraform Init
+            run: terraform init
+            working-directory: ./envs/${{ env.ENV }}
+
+          - name: Terraform Plan
+            run: terraform plan -var="is_aws_profile_used=false"
+            working-directory: ./envs/${{ env.ENV }}
