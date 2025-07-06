@@ -13,7 +13,6 @@ terraform {
     key          = "terraform.tfstate"
     use_lockfile = true # DynamoDBなしでステートロック可能
     region       = "ap-northeast-1"
-    profile      = "terraform-ex-dev-terraform-user"
   }
 }
 
